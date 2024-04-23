@@ -65,3 +65,7 @@ time.sleep(3)
 
 # Decryption
 
+# Save password and Check if it is on /list
+
+# delete tag from list
+
