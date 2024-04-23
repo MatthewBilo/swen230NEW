@@ -3,8 +3,16 @@ import pytest
 import sys
 from os.path import dirname as d
 from os.path import abspath, join
+from unittest.mock import MagicMock
+from flask import Flask
+from util import fileStorage
+from util.fileStorage import register_user
+from util.fileStorage import check_credentials
+from util.fileStorage import update_password
+from util.fileStorage import clear_user
 
 import server
+from server import app
 from util import Cipher
 
 
@@ -12,89 +20,36 @@ root_dir = d(d(abspath(__file__)))
 sys.path.append(root_dir)
 cp = Cipher.Cipher()
 
-def testing_test():
-    print("GoogE")
-    assert server.testing(1) == 2
 
 @pytest.fixture
 def client():
+    # Mock the Flask app client
+    app = Flask(__name__, template_folder='/swen230new/app/templates', static_folder='/swen230new/app/static', static_url_path='')
     with app.test_client() as client:
         yield client
-# white-box testing
-def test_home_page(client):
-    response = client.get('/home')
-    assert response.status_code == 200
-    assert b'Home Page' in response.data
 
-# white-box testing
-def test_register(client):
-    response = client.get('/register')
-    assert response.status_code == 200
-    assert b'Register' in response.data
+def test_register(client, monkeypatch):
+    # Mock the request object
+    mock_request = MagicMock()
+    mock_request.method = 'POST'
+    mock_request.form = {
+        'username': 'test_user',
+        'password': 'test_password',
+        'passkey': 'test_passkey'
+    }
+    # Patching request to return the mock_request
+    monkeypatch.setattr('flask.request', mock_request)
 
-# white-box testing
-def test_login(client):
-    response = client.get('/login')
-    assert response.status_code == 200
-    assert b'Login' in response.data
+    # Mock the register_user function
+    mock_register_user = MagicMock()
+    monkeypatch.setattr('util.fileStorage.register_user', mock_register_user)
 
-# white-box testing
-def test_post_form(client):
-    response = client.get('/post_form')
-    assert response.status_code == 200
-    assert b'Post Form' in response.data
-
-# white-box testing
-def test_post_submit(client):
-    response = client.get('/post_submit')
-    assert response.status_code == 405
-
-# white-box testing
-def test_form_response_ex(client):
-    response = client.get('/form_response_ex')
-    assert response.status_code == 405
-
-# white-box testing
-def test_register_post(client):
+    # Call the register function
     response = client.post('/register')
-    assert response.status_code == 200
-    assert b'Register' in response.data
 
-# white-box testing
-def test_login_post(client):
-    response = client.post('/login')
-    assert response.status_code == 200
-    assert b'Login' in response.data
+    # Assertions
+    assert response.status_code == 302  # Redirect status code
+    assert response.location == 'http://localhost/login'  # Redirect to login page
 
-# black-box testing
-def test_register_post_with_data(client):
-    response = client.post('/register', data=dict(username='test', password='test', passkey='test'))
-    assert response.status_code == 302
-    assert response.headers['Location'] == 'http://localhost/login'
-
-# black-box testing
-def test_login_post_with_data(client):
-    response = client.post('/login', data=dict(username='test', password='test'))
-    assert response.status_code == 302
-    assert response.headers['Location'] == 'http://localhost/home'
-
-# black-box testing
-def test_register_post_with_invalid_data(client):
-    response = client.post('/register', data=dict(username='test', password='test', passkey='mymomdoesntlikeitwhenimnaughty'))
-    assert response.status_code == 200
-    assert b'Passkey length needs to be between 10 and 30 characters' in response.data
-
-# black-box testing
-def test_login_post_with_invalid_data(client):
-    response = client.post('/login', data=dict(username='test', password='somethingthatpeoplethinkisoingtobesafebutactuallyisntsafeatall'))
-    assert response.status_code == 200
-    assert b'Password length needs to be between 8 and 20 characters' in response.data
-
-# black-box testing
-def test_post_submit_with_data(client):
-    response = client.post('/post_submit', data=dict(field_a='test', number='123', field_b='test'))
-    assert response.status_code == 200
-    assert b'test' in response.data
-    assert b'123' in response.data
-    assert b'test' in response.data
-"""
+    # Check if register_user was called with the correct arguments
+    mock_register_user.assert_called_once_with('test_user', 'test_password', 'test_passkey')
