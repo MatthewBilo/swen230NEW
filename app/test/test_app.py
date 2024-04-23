@@ -1,102 +1,60 @@
-# import pytest
-# import app
-# import sys
-# from os.path import dirname as d
-# from os.path import abspath, join
-# from unittest.mock import MagicMock
-# from flask import Flask
-# from util import fileStorage
-# from util.fileStorage import register_user
-# from util.fileStorage import check_credentials
-# from util.fileStorage import update_password
-# from util.fileStorage import clear_user
-
-# import server
-# from server import app
-# from util import Cipher
+import pytest
+from peewee import SqliteDatabase, Model, CharField, TextField, ForeignKeyField
+from util.fileStorage import User, EncryptedData, register_user, check_credentials, update_password, clear_user, save_encrypted_data, get_encrypted_data, delete_encrypted_data
 
 
-# root_dir = d(d(abspath(__file__)))
-# sys.path.append(root_dir)
-# cp = Cipher.Cipher()
+db = SqliteDatabase(':memory:')
 
+def setup_function():
+    db.bind([User, EncryptedData])
+    db.create_tables([User, EncryptedData])
 
-# @pytest.fixture
-# def client():
-#     # Mock the Flask app client
-#     app = Flask(__name__, template_folder='/swen230new/app/templates', static_folder='/swen230new/app/static', static_url_path='')
-#     with app.test_client() as client:
-#         yield client
+def teardown_function():
+    db.drop_tables([User, EncryptedData])
 
-# def test_register(client, monkeypatch):
-#     # Mock the request object
-#     mock_request = MagicMock()
-#     mock_request.method = 'POST'
-#     mock_request.form = {
-#         'username': 'test_user',
-#         'password': 'test_password',
-#         'passkey': 'test_passkey'
-#     }
-#     # Patching request to return the mock_request
-#     monkeypatch.setattr('flask.request', mock_request)
+def test_register_user():
+    assert register_user('testuser', 'testpass', 'testkey') == True
+    assert register_user('testuser', 'testpass', 'testkey') == False
 
-#     # Mock the register_user function
-#     mock_register_user = MagicMock()
-#     monkeypatch.setattr('util.fileStorage.register_user', mock_register_user)
+def test_check_credentials():
+    register_user('testuser', 'testpass', 'testkey')
+    assert check_credentials('testuser', 'testpass') == (True, None)
+    assert check_credentials('wronguser', 'testpass') == (False, "Wrong username")
 
-#     # Call the register function
-#     response = client.post('/register')
+def test_update_password():
+    register_user('testuser', 'testpass', 'testkey')
+    update_password('testuser', 'newpass')
+    assert check_credentials('testuser', 'newpass') == (True, None)
+    update_password('wronguser', 'newpass')
+    assert check_credentials('wronguser', 'newpass') == (False, "Wrong username")
 
-#     # Assertions
-#     assert response.status_code == 302  # Redirect status code
-#     assert response.location == 'http://localhost/login'  # Redirect to login page
+def test_clear_user():
+    register_user('testuser', 'testpass', 'testkey')
+    clear_user('testuser')
+    assert check_credentials('testuser', 'testpass') == (False, "Wrong username")
+    clear_user('wronguser')
+    assert check_credentials('wronguser', 'testpass') == (False, "Wrong username")
 
-#     # Check if register_user was called with the correct arguments
-#     mock_register_user.assert_called_once_with('test_user', 'test_password', 'test_passkey')
+def test_save_encrypted_data():
+    register_user('testuser', 'testpass', 'testkey')
+    save_encrypted_data('testuser', 'testtag', 'testtext')
+    assert len(get_encrypted_data('testuser')) == 1
+    save_encrypted_data('wronguser', 'testtag', 'testtext')
+    assert len(get_encrypted_data('wronguser')) == 0
 
+def test_get_encrypted_data():
+    register_user('testuser', 'testpass', 'testkey')
+    save_encrypted_data('testuser', 'testtag', 'testtext')
+    assert len(get_encrypted_data('testuser')) == 1
+    assert len(get_encrypted_data('wronguser')) == 0
 
-import unittest
-from unittest.mock import patch, MagicMock
-from flask import Flask, session
-from util.fileStorage import check_credentials, register_user, update_password, clear_user, save_encrypted_data, get_encrypted_data, delete_encrypted_data
+def test_delete_encrypted_data():
+    register_user('testuser', 'testpass', 'testkey')
+    save_encrypted_data('testuser', 'testtag', 'testtext')
+    encrypted_data = get_encrypted_data('testuser')
+    delete_encrypted_data('testuser', encrypted_data[0].id)
+    assert len(get_encrypted_data('testuser')) == 0
+    delete_encrypted_data('wronguser', 1)
+    assert len(get_encrypted_data('wronguser')) == 0
 
-class TestFileStorage(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_register_user_success(self):
-        with patch('util.fileStorage.User.get') as mock_user_get:
-            mock_user_get.side_effect = [None]
-            with patch('util.fileStorage.User.create') as mock_user_create:
-                result = register_user('test_user', 'test_password', 'test_passkey')
-                self.assertTrue(result)
-                mock_user_create.assert_called_once_with(username='test_user', password='test_password', passkey='test_passkey')
-
-    def test_register_user_failure(self):
-        with patch('util.fileStorage.User.get') as mock_user_get:
-            mock_user_get.side_effect = [MagicMock()]
-            result = register_user('test_user', 'test_password', 'test_passkey')
-            self.assertFalse(result)
-
-    def test_check_credentials_success(self):
-        with patch('util.fileStorage.User.get') as mock_user_get:
-            user = MagicMock()
-            user.password = 'test_password'
-            mock_user_get.return_value = user
-            result, _ = check_credentials('test_user', 'test_password')
-            self.assertTrue(result)
-
-    def test_check_credentials_failure(self):
-        with patch('util.fileStorage.User.get') as mock_user_get:
-            mock_user_get.side_effect = [MagicMock()]
-            result, _ = check_credentials('test_user', 'test_password')
-            self.assertFalse(result)
-
-    # Add more test methods for other functions...
-
-if __name__ == '__main__':
-    unittest.main()
 
