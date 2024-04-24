@@ -28,6 +28,14 @@ def test_check_credentials_false():
     register_user('testuser', 'testpass', 'testkey')
     assert check_credentials('wronguser', 'testpass') == (False, "Wrong username")
 
+def test_login_false():
+    register_user('testuser', 'testpass', 'testkey')
+    assert check_credentials('testuser', 'wrongpass') == (False, "Wrong password")
+
+def test_login_false2():
+    register_user('testuser', 'testpass', 'testkey')
+    assert check_credentials('', '') == (False, None)
+
 def test_update_password_true():
     register_user('testuser', 'testpass', 'testkey')
     update_password('testuser', 'newpass')
