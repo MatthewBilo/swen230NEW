@@ -3,14 +3,8 @@ A docker environment for Flask with coding examples
 
 Open a shell and move to the flask_ex1 folder. Under the folder, execute the following commend
 ```
-docker build -t flask_ex1 .
+make docker
 ``` 
-
-You should see a image flask_ex1.
-
-```
-docker run -itd -p 9090:9090 --rm -v ${PWD}/app:/src/app --name flask_ex1_con flask_ex1
-```
 
 You can check the flask server log by using docker container logs command
 
@@ -18,12 +12,18 @@ You can check the flask server log by using docker container logs command
 docker logs flask_ex1_con -f
 ```
 
-For tests
+For unit tests
 
 ```
 pip install pytest
 ``` 
 
 ```
-pytest
+make test
 ``` 
+
+For frontend tests (Note, if you want to run front end test multiple times, you need to restart the container, run 'make dockerclose' then 'make docker' to restart the container)
+
+```
+make frontendtest
+```
