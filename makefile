@@ -10,7 +10,7 @@ docker:
 dockerclose:
 	docker stop flask_ex1_con
 test:
-	cd app/test && coverage run -m pytest && coverage report -m
+	cd app/test && coverage run -m pytest && coverage report -m && coverage html
 frontendtest: run1 run2 run3 run4 run5 run6
 	@echo "All scripts ran successfully."
 
