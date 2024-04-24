@@ -1,7 +1,7 @@
 import pytest
 from peewee import SqliteDatabase, Model, CharField, TextField, ForeignKeyField
 from util.fileStorage import User, EncryptedData, register_user, check_credentials, update_password, clear_user, save_encrypted_data, get_encrypted_data, delete_encrypted_data
-
+import util.fileStorage
 
 db = SqliteDatabase(':memory:')
 
