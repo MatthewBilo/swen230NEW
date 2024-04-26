@@ -26,9 +26,9 @@ try:
     
     value = driver.find_element(By.XPATH, "/html/body/div/form/input[3]").get_attribute('value')
     if value == "encrypted_text":
-        print("Decryption data is working successfully")
+        print("Test 4 passed")
     else:
-        print("Error in decryption data") 
+        print("Test 4 failed") 
 except:
-    print("Error in decrypting data")
+    print("Test 4 failed")
 

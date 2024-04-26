@@ -22,8 +22,8 @@ try:
     driver.find_element(By.XPATH, "/html/body/ul/li[5]/a").click()
     element = driver.find_element(By.XPATH, "/html/body/form[1]/label[1]")
     if(element.text == "username:"):
-        print("Logged out successfully")
+        print("Test 6 passed")
     else:
-        print("Error in logging out")
+        print("Test 6 failed")
 except:
-    print("Error in logging out")   
+    print("Test 6 failed")   

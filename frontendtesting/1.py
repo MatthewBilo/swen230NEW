@@ -25,8 +25,8 @@ try:
     driver.find_element(By.XPATH, "/html/body/form[1]/input[3]").click()
     driver.find_element(By.XPATH, "/html/body/form[1]/input[3]").send_keys("testing555")
     driver.find_element(By.XPATH, "/html/body/form[1]/input[4]").click()
-    print("Login page and register page loaded successfully")
+    print("Test 1 passed")
 except:
-    print("Error in register")
+    print("Test 1 failed")
 
 

@@ -30,9 +30,9 @@ try:
     driver.find_element(By.XPATH, "/html/body/ul/li[4]/a").click()
     element = driver.find_element(By.XPATH, "/html/body/div/div/p[1]")
     if(element.text == "Tag: testing"):
-        print("Encrypted data is saving in list successfully")
+        print("Test 5 passed")
     else:
-        print("Error in saving encrypted data in list")
+        print("Test 5 failed")
     
 except:
-    print("Error in save encrypted data in list")
+    print("Test 5 failed")

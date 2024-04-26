@@ -9,6 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
+
 driver = webdriver.Chrome()
 driver.get("http://localhost:9090")
 try:
@@ -16,12 +17,22 @@ try:
     driver.find_element(By.NAME, "username").click()
     driver.find_element(By.NAME, "username").send_keys("username5")
     driver.find_element(By.NAME, "password").click()
-    driver.find_element(By.NAME, "password").send_keys("password5")
+    driver.find_element(By.NAME, "password").send_keys("WRONGPASSWORD")
     driver.find_element(By.XPATH, "/html/body/form[1]/input[3]").click()
-    driver.find_element(By.XPATH, "/html/body/ul/li[1]/a").click()
-    driver.find_element(By.XPATH, "/html/body/div/form/input[1]").click()
-    driver.find_element(By.XPATH, "/html/body/div/form/input[1]").send_keys("password5v2")
-    driver.find_element(By.XPATH, "/html/body/div/form/input[2]").click()
-    print("Test 2 passed")
+    element = driver.find_element(By.XPATH, "/html/body/p")
+    if(element.text == "Wrong password"):
+        print("Test 7a passed")
+    else:
+        print("Test 7a failed")
+    driver.find_element(By.NAME, "username").click()
+    driver.find_element(By.NAME, "username").send_keys("WRONGUSERNAME")
+    driver.find_element(By.NAME, "password").click()
+    driver.find_element(By.NAME, "password").send_keys("password5v2")
+    driver.find_element(By.XPATH, "/html/body/form[1]/input[3]").click()
+    element = driver.find_element(By.XPATH, "/html/body/p")
+    if(element.text == "Wrong username"):
+        print("Test 7b passed")
+    else:
+        print("Test 7b failed")
 except:
-    print("Test 2 failed")
+    print("Test 7 failed")   

@@ -25,9 +25,9 @@ try:
     driver.find_element(By.XPATH, "/html/body/div/form/input[2]").click()
     value = driver.find_element(By.XPATH, "/html/body/div/form/input[4]").get_attribute('value')
     if value == "ITQlaW1nayEqc2shOmtnT2pqZSFtTEdFR0ZNWmw0":
-        print("Encrypted data is saving successfully")
+        print("Test 3 passed")
     else:
-        print("Error in saving encrypted data") 
+        print("Test 3 failed") 
     
 except:
-    print("Error in save encrypted data")
+    print("Test 3 failed")
